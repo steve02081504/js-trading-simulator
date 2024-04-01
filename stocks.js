@@ -1,6 +1,24 @@
-$(function () {
+/// <reference types="jsstp" />
+"use strict";
+
+/** @type {typeof import("jsstp").jsstp} */
+var jsstp;
+
+$(async function () {
+	let isAvailableSSTP = await jsstp.available();
+	const sendTrade = (amount, name) => {
+		if (isAvailableSSTP) {
+			jsstp.NOTIFY({
+				'Option':'nobreak',
+				'Event':'OnGetMoney',
+				'Reference0':'StockTrading/0.1',
+				'Reference1':String(Math.round(amount)),
+				'Reference2':name,
+			});
+		}
+	};
 	//stock data
-	companies = [
+	const companies = [
 		{
 			name: 'Apple'
 			, symbol: 'AAPL'
@@ -77,7 +95,7 @@ $(function () {
 	var changePrice = function (price) {
 
 		//generate random number -1 or 1
-		chance = Math.round(Math.random()) * 2 - 1;
+		const chance = Math.round(Math.random()) * 2 - 1;
 
 		//adds chance/10 to price
 		price += chance / 10;
@@ -230,6 +248,7 @@ $(function () {
 								if (cashflow > PriceForThisStock) {
 									subtractPrice = true;
 									cashflow = cashflow - PriceForThisStock;
+									sendTrade(-1*PriceForThisStock, obj.name);
 								}
 							}
 							break;
@@ -281,6 +300,7 @@ $(function () {
 									sharesForThisStock -= 1;
 									obj[prop] = sharesForThisStock;
 									$('#' + 'shares' + symbol).html(sharesForThisStock);
+									sendTrade(PriceForThisStock, obj.name);
 								}
 							}
 							break;
